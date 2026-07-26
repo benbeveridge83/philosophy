@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Word Category Practice</title>
+  <style>
+    :root {
+      --bg: #f7f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #d1d5db;
+      --accent: #2563eb;
+      --accent-soft: #dbeafe;
+      --selected: #fef3c7;
+      --shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+    }
+
+    .app {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    .header, .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .header {
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 1.5rem;
+    }
+
+    .sub {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 14px;
+    }
+
+    .panel {
+      padding: 14px;
+    }
+
+    .section-title {
+      margin: 0 0 10px;
+      font-size: 1rem;
+    }
+
+    .story-controls, .toolbar, .category-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    select, input, textarea, button {
+      font: inherit;
+    }
+
+    select, input, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: white;
+    }
+
+    textarea {
+      min-height: 72px;
+      resize: vertical;
+    }
+
+    button {
+      border: 1px solid var(--border);
+      background: white;
+      border-radius: 12px;
+      padding: 10px 12px;
+      cursor: pointer;
+    }
+
+    button.primary {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    button.soft {
+      background: var(--accent-soft);
+      border-color: #bfdbfe;
+    }
+
+    .story {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .sentence {
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #fcfcff;
+    }
+
+    .sentence-number {
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin-bottom: 8px;
+    }
+
+    .word {
+      display: inline-block;
+      margin: 3px 5px 3px 0;
+      padding: 6px 9px;
+      border-radius: 999px;
+      border: 1px solid #dbe1ea;
+      background: white;
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+      transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    }
+
+    .word-menu {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      z-index: 20;
+      min-width: 200px;
+      max-width: 260px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      padding: 8px;
+      display: none;
+    }
+
+    .word:hover .word-menu,
+    .word:focus-within .word-menu,
+    .word.open .word-menu {
+      display: block;
+    }
+
+    .menu-title {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin: 2px 4px 6px;
+    }
+
+    .menu-option {
+      width: 100%;
+      text-align: left;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      background: white;
+      margin-bottom: 4px;
+      cursor: pointer;
+    }
+
+    .menu-option:hover {
+      background: #f8fafc;
+      border-color: var(--border);
+    }
+
+    .menu-option.clear-option {
+      color: #b91c1c;
+    }
+
+    .word.selected {
+      background: var(--selected);
+      border-color: #f59e0b;
+    }
+
+    .word.labeled {
+      border-width: 2px;
+      color: #111827;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      margin: 0 6px 6px 0;
+      font-size: 0.9rem;
+      background: white;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+      border: 1px solid rgba(0,0,0,0.12);
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .selected-box {
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      padding: 10px;
+      margin-bottom: 10px;
+      background: #fafafa;
+    }
+
+    .small {
+      font-size: 0.84rem;
+      color: var(--muted);
+    }
+
+    .list {
+      max-height: 220px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .entry {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px;
+      margin-bottom: 8px;
+      background: white;
+    }
+
+    .entry strong { display: block; margin-bottom: 4px; }
+
+    @media (max-width: 820px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <h1>Word Category Practice</h1>
+      <div class="sub">
+        Tap mostly the words that feel interesting to you — especially the non-nouns and non-verbs. You can skip easy words.
+      </div>
+      <div id="storageWarning" style="display:none;margin-top:10px;padding:10px 12px;border:1px solid #fecaca;background:#fef2f2;border-radius:12px;color:#991b1b;font-size:0.92rem;"></div>
+      <div id="saveStatus" style="display:none;margin-top:10px;padding:10px 12px;border:1px solid #bfdbfe;background:#eff6ff;border-radius:12px;color:#1d4ed8;font-size:0.92rem;"></div>
+    </div>
+
+    <div class="panel" id="authPanel" style="margin-bottom:14px;">
+      <h2 class="section-title">Account</h2>
+      <div id="signedOutControls">
+        <div class="category-row">
+          <input id="authEmail" type="email" autocomplete="email" placeholder="Email address" />
+          <input id="authPassword" type="password" autocomplete="current-password" placeholder="Password" />
+        </div>
+        <div class="category-row">
+          <button class="primary" id="signInBtn">Sign in</button>
+          <button id="signUpBtn">Create account</button>
+        </div>
+      </div>
+      <div id="signedInControls" style="display:none;">
+        <div class="category-row" style="align-items:center;justify-content:space-between;">
+          <div>Signed in as <strong id="signedInEmail"></strong></div>
+          <button id="signOutBtn">Sign out</button>
+        </div>
+      </div>
+      <div id="authMessage" class="small"></div>
+    </div>
+
+    <div class="layout" id="mainLayout" style="display:none;">
+      <div class="panel">
+        <h2 class="section-title">Practice Text</h2>
+        <div class="story-controls">
+          <select id="storySelect"></select>
+          <button id="resetStoryBtn">Reset labels</button>
+        </div>
+        <div class="toolbar">
+          <button class="soft" id="showUnlabeledBtn">Show only unlabeled words</button>
+          <button class="soft" id="showAllBtn">Show all words</button>
+          <button id="exportBtn">Export labels</button>
+        </div>
+        <div id="story" class="story"></div>
+      </div>
+
+      <div class="panel">
+        <h2 class="section-title">Selected Word</h2>
+        <div id="selectedBox" class="selected-box muted">Tap a word to begin.</div>
+
+        <div style="margin-bottom:10px;">
+          <label class="small" for="existingCategory">Assign to an existing category</label>
+          <select id="existingCategory"></select>
+        </div>
+        <div class="category-row">
+          <button class="primary" id="assignBtn">Assign</button>
+          <button id="clearWordBtn">Clear label</button>
+        </div>
+
+        <hr style="border:none;border-top:1px solid var(--border);margin:14px 0;" />
+
+        <h2 class="section-title">Make a New Category</h2>
+        <div style="margin-bottom:10px;">
+          <label class="small" for="newCategoryName">Your category name</label>
+          <input id="newCategoryName" placeholder="example: pointer word" />
+        </div>
+        <div style="margin-bottom:10px;">
+          <label class="small" for="newCategoryDesc">What this kind of word does</label>
+          <textarea id="newCategoryDesc" placeholder="example: points to a thing without fully naming it"></textarea>
+        </div>
+        <div class="category-row">
+          <button class="primary" id="createCategoryBtn">Create category</button>
+        </div>
+
+        <hr style="border:none;border-top:1px solid var(--border);margin:14px 0;" />
+
+        <h2 class="section-title">Your Categories</h2>
+        <div id="categoryTags"></div>
+        <div id="categoryList" class="list"></div>
+
+        <hr style="border:none;border-top:1px solid var(--border);margin:14px 0;" />
+
+        <h2 class="section-title">Edit a Category</h2>
+        <div style="margin-bottom:10px;">
+          <label class="small" for="editCategorySelect">Choose a category</label>
+          <select id="editCategorySelect"></select>
+        </div>
+        <div style="margin-bottom:10px;">
+          <label class="small" for="editCategoryName">Category name</label>
+          <input id="editCategoryName" placeholder="Edit name" />
+        </div>
+        <div style="margin-bottom:10px;">
+          <label class="small" for="editCategoryDesc">What this kind of word does</label>
+          <textarea id="editCategoryDesc" placeholder="Edit description"></textarea>
+        </div>
+        <div class="category-row">
+          <button class="primary" id="saveCategoryEditBtn">Save category changes</button>
+          <button id="deleteCategoryBtn">Delete category</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = "PASTE_YOUR_SUPABASE_URL_HERE";
+    const SUPABASE_PUBLISHABLE_KEY = "PASTE_YOUR_SUPABASE_PUBLISHABLE_KEY_HERE";
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+    const stories = [
+      {
+        title: 'Level 1 - Very Simple',
+        sentences: [
+          'Mia ran to the red gate after lunch.',
+          'She looked under the box, but it was empty.',
+          'How did the little bird get there so fast?',
+          'Ben was still inside, and he felt very tired.',
+          'They sat on the grass before the rain began.'
+        ]
+      },
+      {
+        title: 'Level 2 - Slightly Harder',
+        sentences: [
+          'When the bus finally arrived, Nora waved from the window.',
+          'Her brother had already left, so she waited by herself.',
+          'The coach spoke softly because the room was quiet.',
+          'If the lights go out again, we will use the small lamp.',
+          'That was the moment when everyone laughed.'
+        ]
+      },
+      {
+        title: 'Level 3 - More Abstract',
+        sentences: [
+          'Sometimes people change slowly, even when they want quick results.',
+          'The plan seemed simple at first, yet several problems appeared later.',
+          'Why do some words connect ideas more clearly than others?',
+          'Although the test was short, it revealed an important weakness.',
+          'Perhaps the best answer depends on how the question is asked.'
+        ]
+      }
+    ];
+
+    const defaultCategories = [
+      { id: uid(), name: 'unsure', desc: 'I am not sure what this word is doing yet.', color: '#d1d5db' },
+      { id: uid(), name: 'helper word', desc: 'Helps another word do its job.', color: '#93c5fd' },
+      { id: uid(), name: 'joining word', desc: 'Connects words, ideas, or sentence parts.', color: '#86efac' },
+      { id: uid(), name: 'pointing word', desc: 'Points to something instead of naming it fully.', color: '#fca5a5' },
+      { id: uid(), name: 'question word', desc: 'Asks or introduces a question.', color: '#fcd34d' },
+      { id: uid(), name: 'time/place/manner word', desc: 'Tells when, where, or how something happens.', color: '#c4b5fd' }
+    ];
+
+    let categories = load('wc_categories', defaultCategories);
+    let labels = load('wc_labels', {});
+    let storyIndex = (() => {
+      try {
+        const raw = localStorage.getItem('wc_story_index');
+        if (raw !== null) return Number(raw);
+      } catch (err) {
+        console.warn('Could not read story index from localStorage.', err);
+      }
+      try {
+        if (window.__wc_story_index) return Number(JSON.parse(window.__wc_story_index));
+      } catch (err) {
+        console.warn('Could not read story index fallback.', err);
+      }
+      return 0;
+    })();
+    let selected = null;
+    let showOnlyUnlabeled = false;
+    let activeMenuKey = null;
+    let db = null;
+    let currentUser = null;
+    let saveTimer = null;
+
+    const storyEl = document.getElementById('story');
+    const storySelect = document.getElementById('storySelect');
+    const selectedBox = document.getElementById('selectedBox');
+    const existingCategory = document.getElementById('existingCategory');
+    const categoryTags = document.getElementById('categoryTags');
+    const categoryList = document.getElementById('categoryList');
+    const editCategorySelect = document.getElementById('editCategorySelect');
+    const editCategoryName = document.getElementById('editCategoryName');
+    const editCategoryDesc = document.getElementById('editCategoryDesc');
+    const storageWarning = document.getElementById('storageWarning');
+    const saveStatus = document.getElementById('saveStatus');
+    const mainLayout = document.getElementById('mainLayout');
+    const signedOutControls = document.getElementById('signedOutControls');
+    const signedInControls = document.getElementById('signedInControls');
+    const signedInEmail = document.getElementById('signedInEmail');
+    const authMessage = document.getElementById('authMessage');
+    const authEmail = document.getElementById('authEmail');
+    const authPassword = document.getElementById('authPassword');
+
+    function uid() {
+      return Math.random().toString(36).slice(2, 10);
+    }
+
+    function load(key, fallback) {
+      try {
+        const raw = localStorage.getItem(key);
+        if (raw) return JSON.parse(raw);
+      } catch (err) {
+        console.warn('Could not read from localStorage.', err);
+      }
+
+      try {
+        const fallbackKey = `__${key}`;
+        const rawFallback = window[fallbackKey];
+        if (rawFallback) return JSON.parse(rawFallback);
+      } catch (err) {
+        console.warn('Could not read from in-memory fallback.', err);
+      }
+
+      return fallback;
+    }
+
+    function showWarning(message) {
+      storageWarning.style.display = 'block';
+      storageWarning.textContent = message;
+    }
+
+    function showStatus(message) {
+      saveStatus.style.display = 'block';
+      saveStatus.textContent = message;
+      clearTimeout(showStatus._timer);
+      showStatus._timer = setTimeout(() => {
+        saveStatus.style.display = 'none';
+      }, 1800);
+    }
+
+    function openDatabase() {
+      return new Promise((resolve, reject) => {
+        if (!window.indexedDB) {
+          reject(new Error('IndexedDB is not available in this browser.'));
+          return;
+        }
+        const request = indexedDB.open('wordCategoryPracticeDB', 1);
+        request.onupgradeneeded = () => {
+          const database = request.result;
+          if (!database.objectStoreNames.contains('appState')) {
+            database.createObjectStore('appState');
+          }
+        };
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error || new Error('Could not open IndexedDB.'));
+      });
+    }
+
+    function idbSet(key, value) {
+      return new Promise((resolve, reject) => {
+        if (!db) {
+          reject(new Error('Database not ready.'));
+          return;
+        }
+        const tx = db.transaction('appState', 'readwrite');
+        tx.objectStore('appState').put(value, key);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error || new Error('IndexedDB write failed.'));
+      });
+    }
+
+    function idbGet(key) {
+      return new Promise((resolve, reject) => {
+        if (!db) {
+          resolve(undefined);
+          return;
+        }
+        const tx = db.transaction('appState', 'readonly');
+        const request = tx.objectStore('appState').get(key);
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error || new Error('IndexedDB read failed.'));
+      });
+    }
+
+    function scheduleSave() {
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(saveToSupabase, 250);
+    }
+
+    async function save() {
+      scheduleSave();
+    }
+
+    async function saveToSupabase() {
+      if (!currentUser) return;
+      const payload = {
+        user_id: currentUser.id,
+        categories,
+        labels,
+        story_index: storyIndex,
+        updated_at: new Date().toISOString()
+      };
+      const { error } = await supabaseClient
+        .from('word_category_state')
+        .upsert(payload, { onConflict: 'user_id' });
+      if (error) {
+        console.error(error);
+        showWarning(`Could not save to Supabase: ${error.message}`);
+        return;
+      }
+      storageWarning.style.display = 'none';
+      showStatus('Saved to Supabase.');
+    }
+
+    async function loadFromSupabase() {
+      if (!currentUser) return;
+      const { data, error } = await supabaseClient
+        .from('word_category_state')
+        .select('categories, labels, story_index')
+        .eq('user_id', currentUser.id)
+        .maybeSingle();
+      if (error) {
+        showWarning(`Could not load from Supabase: ${error.message}`);
+        return;
+      }
+      if (data) {
+        if (Array.isArray(data.categories)) categories = data.categories;
+        if (data.labels && typeof data.labels === 'object') labels = data.labels;
+        if (typeof data.story_index === 'number') storyIndex = data.story_index;
+      } else {
+        await saveToSupabase();
+      }
+    }
+
+    function setAuthMessage(message, isError = false) {
+      authMessage.textContent = message;
+      authMessage.style.color = isError ? '#b91c1c' : 'var(--muted)';
+    }
+
+    async function refreshAppForSession(session) {
+      currentUser = session?.user || null;
+      if (!currentUser) {
+        signedOutControls.style.display = 'block';
+        signedInControls.style.display = 'none';
+        mainLayout.style.display = 'none';
+        return;
+      }
+      signedOutControls.style.display = 'none';
+      signedInControls.style.display = 'block';
+      signedInEmail.textContent = currentUser.email || 'account';
+      mainLayout.style.display = 'grid';
+      await loadFromSupabase();
+      populateStorySelect();
+      renderCategories();
+      renderStory();
+    }
+
+    async function signIn() {
+      setAuthMessage('Signing in…');
+      const { error } = await supabaseClient.auth.signInWithPassword({
+        email: authEmail.value.trim(),
+        password: authPassword.value
+      });
+      if (error) return setAuthMessage(error.message, true);
+      setAuthMessage('Signed in.');
+    }
+
+    async function signUp() {
+      setAuthMessage('Creating account…');
+      const { data, error } = await supabaseClient.auth.signUp({
+        email: authEmail.value.trim(),
+        password: authPassword.value
+      });
+      if (error) return setAuthMessage(error.message, true);
+      if (!data.session) setAuthMessage('Account created. Check your email to confirm, then sign in.');
+      else setAuthMessage('Account created and signed in.');
+    }
+
+    async function signOut() {
+      const { error } = await supabaseClient.auth.signOut();
+      if (error) setAuthMessage(error.message, true);
+    }
+
+    function tokenize(sentence) {
+      return sentence.match(/[A-Za-z']+|[^\sA-Za-z']/g) || [];
+    }
+
+    function keyFor(sentenceIdx, wordIdx) {
+      return `s${storyIndex}_sent${sentenceIdx}_word${wordIdx}`;
+    }
+
+    function currentStory() {
+      return stories[storyIndex];
+    }
+
+    function populateStorySelect() {
+      storySelect.innerHTML = '';
+      stories.forEach((story, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        option.textContent = story.title;
+        if (index === storyIndex) option.selected = true;
+        storySelect.appendChild(option);
+      });
+    }
+
+    function renderStory() {
+      storyEl.innerHTML = '';
+      currentStory().sentences.forEach((sentence, sentenceIdx) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'sentence';
+
+        const num = document.createElement('div');
+        num.className = 'sentence-number';
+        num.textContent = `Sentence ${sentenceIdx + 1}`;
+        wrapper.appendChild(num);
+
+        tokenize(sentence).forEach((token, wordIdx) => {
+          const isWord = /[A-Za-z']+/.test(token);
+          const labelId = labels[keyFor(sentenceIdx, wordIdx)];
+          if (showOnlyUnlabeled && labelId && isWord) {
+            return;
+          }
+
+          const span = document.createElement('span');
+          span.textContent = token;
+          span.className = isWord ? 'word' : '';
+
+          if (isWord) {
+            const wordKey = keyFor(sentenceIdx, wordIdx);
+            span.tabIndex = 0;
+            span.addEventListener('click', (e) => {
+              selectWord(sentenceIdx, wordIdx, token);
+              activeMenuKey = activeMenuKey === wordKey ? null : wordKey;
+              renderStory();
+              e.stopPropagation();
+            });
+            if (selected && selected.sentenceIdx === sentenceIdx && selected.wordIdx === wordIdx) {
+              span.classList.add('selected');
+            }
+            if (activeMenuKey === wordKey) {
+              span.classList.add('open');
+            }
+            if (labelId) {
+              const cat = categories.find(c => c.id === labelId);
+              if (cat) {
+                span.classList.add('labeled');
+                span.style.borderColor = cat.color;
+                span.style.background = cat.color;
+              }
+            }
+
+            const menu = document.createElement('div');
+            menu.className = 'word-menu';
+            menu.addEventListener('click', (e) => e.stopPropagation());
+
+            const title = document.createElement('div');
+            title.className = 'menu-title';
+            title.textContent = 'Choose a category';
+            menu.appendChild(title);
+
+            categories.forEach(cat => {
+              const btn = document.createElement('button');
+              btn.className = 'menu-option';
+              btn.innerHTML = `<span class="dot" style="background:${cat.color}"></span> ${cat.name}`;
+              btn.addEventListener('click', () => {
+                labels[wordKey] = cat.id;
+                save();
+                selectWord(sentenceIdx, wordIdx, token);
+                renderCategories();
+                activeMenuKey = null;
+                renderStory();
+              });
+              menu.appendChild(btn);
+            });
+
+            const clearBtn = document.createElement('button');
+            clearBtn.className = 'menu-option clear-option';
+            clearBtn.textContent = 'Clear label';
+            clearBtn.addEventListener('click', () => {
+              delete labels[wordKey];
+              save();
+              selectWord(sentenceIdx, wordIdx, token);
+              renderCategories();
+              activeMenuKey = null;
+              renderStory();
+            });
+            menu.appendChild(clearBtn);
+
+            span.appendChild(menu);
+          }
+          wrapper.appendChild(span);
+        });
+
+        storyEl.appendChild(wrapper);
+      });
+    }
+
+    function selectWord(sentenceIdx, wordIdx, token) {
+      selected = { sentenceIdx, wordIdx, token };
+      const currentLabel = labels[keyFor(sentenceIdx, wordIdx)];
+      const cat = categories.find(c => c.id === currentLabel);
+      selectedBox.innerHTML = `
+        <strong style="font-size:1.1rem;">${token}</strong><br>
+        <span class="small">Sentence ${sentenceIdx + 1}</span><br>
+        <span class="small">Current label: ${cat ? cat.name : 'none'}</span>
+      `;
+      existingCategory.value = currentLabel || '';
+      renderStory();
+    }
+
+    function renderCategories() {
+      existingCategory.innerHTML = '<option value="">Choose a category</option>';
+      editCategorySelect.innerHTML = '<option value="">Choose a category</option>';
+      categoryTags.innerHTML = '';
+      categoryList.innerHTML = '';
+
+      categories.forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat.id;
+        opt.textContent = cat.name;
+        existingCategory.appendChild(opt);
+
+        const editOpt = document.createElement('option');
+        editOpt.value = cat.id;
+        editOpt.textContent = cat.name;
+        editCategorySelect.appendChild(editOpt);
+
+        const tag = document.createElement('span');
+        tag.className = 'tag';
+        tag.innerHTML = `<span class="dot" style="background:${cat.color}"></span>${cat.name}`;
+        categoryTags.appendChild(tag);
+
+        const count = Object.values(labels).filter(id => id === cat.id).length;
+        const entry = document.createElement('div');
+        entry.className = 'entry';
+        entry.innerHTML = `
+          <strong>${cat.name}</strong>
+          <div class="small" style="margin-bottom:6px;">${cat.desc || 'No description yet.'}</div>
+          <div class="small">Used ${count} time${count === 1 ? '' : 's'}</div>
+        `;
+        categoryList.appendChild(entry);
+      });
+    }
+
+    function loadCategoryIntoEditor() {
+      const cat = categories.find(c => c.id === editCategorySelect.value);
+      editCategoryName.value = cat ? cat.name : '';
+      editCategoryDesc.value = cat ? (cat.desc || '') : '';
+    }
+
+    function saveCategoryEdit() {
+      const cat = categories.find(c => c.id === editCategorySelect.value);
+      if (!cat) return alert('Choose a category to edit.');
+      const newName = editCategoryName.value.trim();
+      const newDesc = editCategoryDesc.value.trim();
+      if (!newName) return alert('Category name cannot be empty.');
+      cat.name = newName;
+      cat.desc = newDesc;
+      save();
+      renderCategories();
+      editCategorySelect.value = cat.id;
+      loadCategoryIntoEditor();
+      if (selected) {
+        selectWord(selected.sentenceIdx, selected.wordIdx, selected.token);
+      }
+    }
+
+    function deleteCategory() {
+      const catId = editCategorySelect.value;
+      if (!catId) return alert('Choose a category to delete.');
+      const cat = categories.find(c => c.id === catId);
+      const usedCount = Object.values(labels).filter(id => id === catId).length;
+      const confirmed = confirm(`Delete category "${cat ? cat.name : 'this category'}"? This will clear ${usedCount} label${usedCount === 1 ? '' : 's'} using it.`);
+      if (!confirmed) return;
+
+      categories = categories.filter(c => c.id !== catId);
+      Object.keys(labels).forEach(key => {
+        if (labels[key] === catId) delete labels[key];
+      });
+      save();
+      renderCategories();
+      editCategorySelect.value = '';
+      loadCategoryIntoEditor();
+      if (selected) {
+        selectWord(selected.sentenceIdx, selected.wordIdx, selected.token);
+      }
+      renderStory();
+    }
+
+    function assignSelected() {
+      if (!selected) return alert('Tap a word first.');
+      if (!existingCategory.value) return alert('Choose a category first.');
+      labels[keyFor(selected.sentenceIdx, selected.wordIdx)] = existingCategory.value;
+      save();
+      selectWord(selected.sentenceIdx, selected.wordIdx, selected.token);
+      renderCategories();
+    }
+
+    function clearSelected() {
+      if (!selected) return alert('Tap a word first.');
+      delete labels[keyFor(selected.sentenceIdx, selected.wordIdx)];
+      save();
+      selectWord(selected.sentenceIdx, selected.wordIdx, selected.token);
+      renderCategories();
+    }
+
+    function createCategory() {
+      const name = document.getElementById('newCategoryName').value.trim();
+      const desc = document.getElementById('newCategoryDesc').value.trim();
+      if (!name) return alert('Give the category a name.');
+      const palette = ['#fca5a5','#fdba74','#fcd34d','#86efac','#93c5fd','#c4b5fd','#f9a8d4','#67e8f9'];
+      const cat = { id: uid(), name, desc, color: palette[categories.length % palette.length] };
+      categories.push(cat);
+      save();
+      renderCategories();
+      document.getElementById('newCategoryName').value = '';
+      document.getElementById('newCategoryDesc').value = '';
+      existingCategory.value = cat.id;
+    }
+
+    function resetCurrentStory() {
+      const keys = Object.keys(labels).filter(k => k.startsWith(`s${storyIndex}_`));
+      keys.forEach(k => delete labels[k]);
+      save();
+      selected = null;
+      selectedBox.textContent = 'Tap a word to begin.';
+      renderStory();
+      renderCategories();
+    }
+
+    function exportLabels() {
+      const data = {
+        story: currentStory().title,
+        categories,
+        labels
+      };
+      const text = JSON.stringify(data, null, 2);
+      try {
+        const blob = new Blob([text], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'word-category-labels.json';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      } catch (err) {
+        alert('Export could not start automatically in this browser/file mode. Copy the text from the next prompt and save it as a .json file.');
+        prompt('Copy your export data:', text);
+      }
+    }
+
+    storySelect.addEventListener('change', (e) => {
+      storyIndex = Number(e.target.value);
+      selected = null;
+      selectedBox.textContent = 'Tap a word to begin.';
+      save();
+      renderStory();
+    });
+
+    document.getElementById('assignBtn').addEventListener('click', assignSelected);
+    document.getElementById('clearWordBtn').addEventListener('click', clearSelected);
+    document.getElementById('createCategoryBtn').addEventListener('click', createCategory);
+    document.getElementById('resetStoryBtn').addEventListener('click', resetCurrentStory);
+    document.getElementById('exportBtn').addEventListener('click', exportLabels);
+    document.getElementById('showUnlabeledBtn').addEventListener('click', () => {
+      showOnlyUnlabeled = true;
+      renderStory();
+    });
+    document.getElementById('showAllBtn').addEventListener('click', () => {
+      showOnlyUnlabeled = false;
+      renderStory();
+    });
+    document.addEventListener('click', () => {
+      activeMenuKey = null;
+      renderStory();
+    });
+    editCategorySelect.addEventListener('change', loadCategoryIntoEditor);
+    document.getElementById('saveCategoryEditBtn').addEventListener('click', saveCategoryEdit);
+    document.getElementById('deleteCategoryBtn').addEventListener('click', deleteCategory);
+
+    document.getElementById('signInBtn').addEventListener('click', signIn);
+    document.getElementById('signUpBtn').addEventListener('click', signUp);
+    document.getElementById('signOutBtn').addEventListener('click', signOut);
+
+    supabaseClient.auth.onAuthStateChange((_event, session) => {
+      refreshAppForSession(session);
+    });
+
+    async function init() {
+      if (SUPABASE_URL.includes('PASTE_') || SUPABASE_PUBLISHABLE_KEY.includes('PASTE_')) {
+        showWarning('Add your Supabase URL and publishable key near the top of the script before deploying.');
+      }
+      const { data } = await supabaseClient.auth.getSession();
+      await refreshAppForSession(data.session);
+    }
+
+    init();
+  </script>
+</body>
+</html>
