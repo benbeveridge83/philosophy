@@ -3,957 +3,169 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Word Category Practice</title>
+  <title>Word Characterization Studio</title>
   <style>
-    :root {
-      --bg: #f7f7fb;
-      --card: #ffffff;
-      --text: #1f2937;
-      --muted: #6b7280;
-      --border: #d1d5db;
-      --accent: #2563eb;
-      --accent-soft: #dbeafe;
-      --selected: #fef3c7;
-      --shadow: 0 8px 24px rgba(0,0,0,0.08);
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.45;
-    }
-
-    .app {
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 16px;
-    }
-
-    .header, .panel {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      box-shadow: var(--shadow);
-    }
-
-    .header {
-      padding: 18px;
-      margin-bottom: 14px;
-    }
-
-    h1 {
-      margin: 0 0 6px;
-      font-size: 1.5rem;
-    }
-
-    .sub {
-      color: var(--muted);
-      font-size: 0.95rem;
-    }
-
-    .layout {
-      display: grid;
-      grid-template-columns: 1.5fr 1fr;
-      gap: 14px;
-    }
-
-    .panel {
-      padding: 14px;
-    }
-
-    .section-title {
-      margin: 0 0 10px;
-      font-size: 1rem;
-    }
-
-    .story-controls, .toolbar, .category-row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 10px;
-    }
-
-    select, input, textarea, button {
-      font: inherit;
-    }
-
-    select, input, textarea {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      background: white;
-    }
-
-    textarea {
-      min-height: 72px;
-      resize: vertical;
-    }
-
-    button {
-      border: 1px solid var(--border);
-      background: white;
-      border-radius: 12px;
-      padding: 10px 12px;
-      cursor: pointer;
-    }
-
-    button.primary {
-      background: var(--accent);
-      color: white;
-      border-color: var(--accent);
-    }
-
-    button.soft {
-      background: var(--accent-soft);
-      border-color: #bfdbfe;
-    }
-
-    .story {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .sentence {
-      padding: 12px;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      background: #fcfcff;
-    }
-
-    .sentence-number {
-      color: var(--muted);
-      font-size: 0.85rem;
-      margin-bottom: 8px;
-    }
-
-    .word {
-      display: inline-block;
-      margin: 3px 5px 3px 0;
-      padding: 6px 9px;
-      border-radius: 999px;
-      border: 1px solid #dbe1ea;
-      background: white;
-      cursor: pointer;
-      user-select: none;
-      position: relative;
-      transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
-    }
-
-    .word-menu {
-      position: absolute;
-      top: calc(100% + 6px);
-      left: 0;
-      z-index: 20;
-      min-width: 200px;
-      max-width: 260px;
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      box-shadow: var(--shadow);
-      padding: 8px;
-      display: none;
-    }
-
-    .word:hover .word-menu,
-    .word:focus-within .word-menu,
-    .word.open .word-menu {
-      display: block;
-    }
-
-    .menu-title {
-      font-size: 0.78rem;
-      color: var(--muted);
-      margin: 2px 4px 6px;
-    }
-
-    .menu-option {
-      width: 100%;
-      text-align: left;
-      padding: 8px 10px;
-      border-radius: 10px;
-      border: 1px solid transparent;
-      background: white;
-      margin-bottom: 4px;
-      cursor: pointer;
-    }
-
-    .menu-option:hover {
-      background: #f8fafc;
-      border-color: var(--border);
-    }
-
-    .menu-option.clear-option {
-      color: #b91c1c;
-    }
-
-    .word.selected {
-      background: var(--selected);
-      border-color: #f59e0b;
-    }
-
-    .word.labeled {
-      border-width: 2px;
-      color: #111827;
-    }
-
-    .tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 7px 10px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      margin: 0 6px 6px 0;
-      font-size: 0.9rem;
-      background: white;
-    }
-
-    .dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      display: inline-block;
-      border: 1px solid rgba(0,0,0,0.12);
-    }
-
-    .muted {
-      color: var(--muted);
-      font-size: 0.92rem;
-    }
-
-    .selected-box {
-      border: 1px dashed var(--border);
-      border-radius: 12px;
-      padding: 10px;
-      margin-bottom: 10px;
-      background: #fafafa;
-    }
-
-    .small {
-      font-size: 0.84rem;
-      color: var(--muted);
-    }
-
-    .list {
-      max-height: 220px;
-      overflow: auto;
-      padding-right: 4px;
-    }
-
-    .entry {
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 10px;
-      margin-bottom: 8px;
-      background: white;
-    }
-
-    .entry strong { display: block; margin-bottom: 4px; }
-
-    @media (max-width: 820px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
-    }
+    :root{--bg:#f4f6fb;--card:#fff;--text:#172033;--muted:#667085;--border:#d8deea;--accent:#3157d5;--soft:#edf2ff;--danger:#b42318;--shadow:0 8px 25px rgba(20,30,55,.08)}
+    *{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+    button,input,textarea,select{font:inherit} button{cursor:pointer;border:1px solid var(--border);background:#fff;border-radius:10px;padding:9px 12px} button:hover{background:#f8fafc}
+    button.primary{background:var(--accent);border-color:var(--accent);color:#fff} button.soft{background:var(--soft);border-color:#cfd8ff;color:#2443a8} button.danger{color:var(--danger)}
+    input,textarea,select{width:100%;border:1px solid var(--border);border-radius:10px;padding:10px 12px;background:#fff} textarea{min-height:110px;resize:vertical}
+    .app{max-width:1500px;margin:auto;padding:14px}.card{background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow)}
+    header{padding:16px 18px;margin-bottom:12px}.title-line{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}h1{font-size:1.45rem;margin:0}.sub{color:var(--muted);font-size:.92rem;margin-top:5px}
+    .tabs{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}.tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+    .auth{padding:13px;margin-bottom:12px}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.row>*{flex:1}.row button{flex:0 0 auto}.status{margin-top:8px;font-size:.88rem;color:var(--muted)}
+    .page{display:none}.page.active{display:block}.grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(320px,.85fr);gap:12px}.panel{padding:14px}.panel h2{font-size:1.05rem;margin:0 0 10px}.panel h3{font-size:.95rem;margin:14px 0 8px}
+    .toolbar{display:flex;gap:7px;flex-wrap:wrap;margin:8px 0}.toolbar>*{width:auto}.intake{margin-bottom:12px}.input-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}.input-tab.active{background:var(--soft);border-color:#aebdff}.input-pane{display:none}.input-pane.active{display:block}
+    .docbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}.docbar select{flex:1;min-width:220px}.docbar button{flex:0 0 auto}
+    .sentence{padding:12px;border:1px solid var(--border);border-radius:13px;background:#fbfcff;margin-bottom:9px}.sentence-num{font-size:.78rem;color:var(--muted);margin-bottom:6px}.word{display:inline-block;margin:3px 4px 3px 0;padding:5px 8px;border-radius:999px;border:2px solid #e1e6ef;background:#fff;cursor:pointer;user-select:none}.word.selected{outline:3px solid #f5c451}.word.unlabeled{border-style:dashed}.punct{margin-right:3px}.empty{padding:25px;text-align:center;color:var(--muted);border:1px dashed var(--border);border-radius:12px}
+    .selected-box{border:1px dashed var(--border);border-radius:11px;padding:10px;background:#fafbfe;margin-bottom:9px}.small{font-size:.82rem;color:var(--muted)}
+    .category-tree{display:flex;flex-direction:column;gap:8px}.cat{border:1px solid var(--border);border-radius:12px;background:#fff;overflow:hidden}.cat-head{display:flex;align-items:center;gap:7px;padding:9px}.cat-toggle{width:31px;padding:5px}.cat-name{font-weight:700;flex:1}.cat-count{font-size:.78rem;color:var(--muted)}.cat-actions{display:flex;gap:5px}.cat-actions button{padding:5px 8px}.cat-body{padding:0 10px 10px 42px}.cat.collapsed>.cat-body{display:none}.word-bank{min-height:38px;border:1px dashed var(--border);border-radius:9px;padding:7px;display:flex;gap:6px;flex-wrap:wrap}.bank-word{padding:5px 8px;border:1px solid var(--border);border-radius:999px;background:#f8fafc;cursor:grab}.subtree{margin-top:8px;display:flex;flex-direction:column;gap:7px}.drop-target{outline:3px solid #b7c5ff}
+    .class-layout{display:grid;grid-template-columns:270px minmax(0,1fr);gap:12px}.class-sidebar{padding:12px}.class-item{padding:10px;border:1px solid var(--border);border-radius:10px;margin-bottom:7px;cursor:pointer}.class-item.active{background:var(--soft);border-color:#aebdff}.class-main{min-width:0}
+    .modal{position:fixed;inset:0;background:rgba(12,18,32,.45);display:none;align-items:center;justify-content:center;padding:18px;z-index:100}.modal.open{display:flex}.modal-card{width:min(520px,100%);padding:16px}.modal-card h3{margin-top:0}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
+    .notice{padding:9px 11px;border-radius:10px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:.88rem;display:none;margin-top:8px}.warning{background:#fff1f0;border-color:#fecdca;color:#b42318}
+    .mindmap-shell{border:1px solid var(--border);border-radius:14px;background:#fbfcff;padding:12px;overflow:auto;min-height:420px}.mindmap-controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}.mindmap-controls label{display:flex;gap:6px;align-items:center;font-size:.84rem;color:var(--muted)}.mindmap-controls input[type=checkbox]{width:auto}.mindmap{position:relative;display:flex;align-items:flex-start;gap:44px;padding:24px;min-width:max-content}.mind-col{display:flex;flex-direction:column;gap:18px;position:relative}.mind-node{position:relative;min-width:150px;max-width:240px;padding:9px 12px;border:2px solid var(--border);border-radius:12px;background:white;box-shadow:0 3px 10px rgba(20,30,55,.06);cursor:pointer}.mind-node strong{display:block}.mind-node .small{margin-top:3px}.mind-node::after{content:'';position:absolute;top:50%;right:-44px;width:44px;border-top:2px solid #c4ccda}.mind-col:last-child .mind-node::after{display:none}.mind-node.hidden-branch{opacity:.45}.map-list-item{padding:10px;border:1px solid var(--border);border-radius:10px;margin-bottom:7px;cursor:pointer}.map-list-item.active{background:var(--soft);border-color:#aebdff}.mindmap-editor-row{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-bottom:8px}.branch-group{border:1px solid var(--border);border-radius:12px;padding:10px;margin-bottom:10px;background:white}.branch-head{display:flex;gap:8px;align-items:center}.branch-head input{flex:1}.branch-children{margin-top:8px;padding-left:20px;border-left:2px solid #d7deea}.branch-child{display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:6px}@media(max-width:900px){.grid,.class-layout{grid-template-columns:1fr}.class-sidebar{order:0}.app{padding:8px}.cat-body{padding-left:12px}.mindmap-editor-row{grid-template-columns:1fr}.mindmap{gap:28px}.mind-node::after{right:-28px;width:28px}}
   </style>
 </head>
 <body>
-  <div class="app">
-    <div class="header">
-      <h1>Word Category Practice</h1>
-      <div class="sub">
-        Tap mostly the words that feel interesting to you — especially the non-nouns and non-verbs. You can skip easy words.
-      </div>
-      <div id="storageWarning" style="display:none;margin-top:10px;padding:10px 12px;border:1px solid #fecaca;background:#fef2f2;border-radius:12px;color:#991b1b;font-size:0.92rem;"></div>
-      <div id="saveStatus" style="display:none;margin-top:10px;padding:10px 12px;border:1px solid #bfdbfe;background:#eff6ff;border-radius:12px;color:#1d4ed8;font-size:0.92rem;"></div>
-    </div>
-
-    <div class="panel" id="authPanel" style="margin-bottom:14px;">
-      <h2 class="section-title">Account</h2>
-      <div id="signedOutControls">
-        <div class="category-row">
-          <input id="authEmail" type="email" autocomplete="email" placeholder="Email address" />
-          <input id="authPassword" type="password" autocomplete="current-password" placeholder="Password" />
-        </div>
-        <div class="category-row">
-          <button class="primary" id="signInBtn">Sign in</button>
-          <button id="signUpBtn">Create account</button>
-        </div>
-      </div>
-      <div id="signedInControls" style="display:none;">
-        <div class="category-row" style="align-items:center;justify-content:space-between;">
-          <div>Signed in as <strong id="signedInEmail"></strong></div>
-          <button id="signOutBtn">Sign out</button>
-        </div>
-      </div>
-      <div id="authMessage" class="small"></div>
-    </div>
-
-    <div class="layout" id="mainLayout" style="display:none;">
-      <div class="panel">
-        <h2 class="section-title">Practice Text</h2>
-        <div class="story-controls">
-          <select id="storySelect"></select>
-          <button id="resetStoryBtn">Reset labels</button>
-        </div>
-        <div class="toolbar">
-          <button class="soft" id="showUnlabeledBtn">Show only unlabeled words</button>
-          <button class="soft" id="showAllBtn">Show all words</button>
-          <button id="exportBtn">Export labels</button>
-        </div>
-        <div id="story" class="story"></div>
-      </div>
-
-      <div class="panel">
-        <h2 class="section-title">Selected Word</h2>
-        <div id="selectedBox" class="selected-box muted">Tap a word to begin.</div>
-
-        <div style="margin-bottom:10px;">
-          <label class="small" for="existingCategory">Assign to an existing category</label>
-          <select id="existingCategory"></select>
-        </div>
-        <div class="category-row">
-          <button class="primary" id="assignBtn">Assign</button>
-          <button id="clearWordBtn">Clear label</button>
-        </div>
-
-        <hr style="border:none;border-top:1px solid var(--border);margin:14px 0;" />
-
-        <h2 class="section-title">Make a New Category</h2>
-        <div style="margin-bottom:10px;">
-          <label class="small" for="newCategoryName">Your category name</label>
-          <input id="newCategoryName" placeholder="example: pointer word" />
-        </div>
-        <div style="margin-bottom:10px;">
-          <label class="small" for="newCategoryDesc">What this kind of word does</label>
-          <textarea id="newCategoryDesc" placeholder="example: points to a thing without fully naming it"></textarea>
-        </div>
-        <div class="category-row">
-          <button class="primary" id="createCategoryBtn">Create category</button>
-        </div>
-
-        <hr style="border:none;border-top:1px solid var(--border);margin:14px 0;" />
-
-        <h2 class="section-title">Your Categories</h2>
-        <div id="categoryTags"></div>
-        <div id="categoryList" class="list"></div>
-
-        <hr style="border:none;border-top:1px solid var(--border);margin:14px 0;" />
-
-        <h2 class="section-title">Edit a Category</h2>
-        <div style="margin-bottom:10px;">
-          <label class="small" for="editCategorySelect">Choose a category</label>
-          <select id="editCategorySelect"></select>
-        </div>
-        <div style="margin-bottom:10px;">
-          <label class="small" for="editCategoryName">Category name</label>
-          <input id="editCategoryName" placeholder="Edit name" />
-        </div>
-        <div style="margin-bottom:10px;">
-          <label class="small" for="editCategoryDesc">What this kind of word does</label>
-          <textarea id="editCategoryDesc" placeholder="Edit description"></textarea>
-        </div>
-        <div class="category-row">
-          <button class="primary" id="saveCategoryEditBtn">Save category changes</button>
-          <button id="deleteCategoryBtn">Delete category</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    const SUPABASE_URL = "https://hopaazyvwuafjiyysiyh.supabase.co";
-    const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_xGht9QD1oIqPEqjtEasTpA_Z_x8apip";
-    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-
-    const stories = [
-      {
-        title: 'Level 1 - Very Simple',
-        sentences: [
-          'Mia ran to the red gate after lunch.',
-          'She looked under the box, but it was empty.',
-          'How did the little bird get there so fast?',
-          'Ben was still inside, and he felt very tired.',
-          'They sat on the grass before the rain began.'
-        ]
-      },
-      {
-        title: 'Level 2 - Slightly Harder',
-        sentences: [
-          'When the bus finally arrived, Nora waved from the window.',
-          'Her brother had already left, so she waited by herself.',
-          'The coach spoke softly because the room was quiet.',
-          'If the lights go out again, we will use the small lamp.',
-          'That was the moment when everyone laughed.'
-        ]
-      },
-      {
-        title: 'Level 3 - More Abstract',
-        sentences: [
-          'Sometimes people change slowly, even when they want quick results.',
-          'The plan seemed simple at first, yet several problems appeared later.',
-          'Why do some words connect ideas more clearly than others?',
-          'Although the test was short, it revealed an important weakness.',
-          'Perhaps the best answer depends on how the question is asked.'
-        ]
-      }
-    ];
-
-    const defaultCategories = [
-      { id: uid(), name: 'unsure', desc: 'I am not sure what this word is doing yet.', color: '#d1d5db' },
-      { id: uid(), name: 'helper word', desc: 'Helps another word do its job.', color: '#93c5fd' },
-      { id: uid(), name: 'joining word', desc: 'Connects words, ideas, or sentence parts.', color: '#86efac' },
-      { id: uid(), name: 'pointing word', desc: 'Points to something instead of naming it fully.', color: '#fca5a5' },
-      { id: uid(), name: 'question word', desc: 'Asks or introduces a question.', color: '#fcd34d' },
-      { id: uid(), name: 'time/place/manner word', desc: 'Tells when, where, or how something happens.', color: '#c4b5fd' }
-    ];
-
-    let categories = load('wc_categories', defaultCategories);
-    let labels = load('wc_labels', {});
-    let storyIndex = (() => {
-      try {
-        const raw = localStorage.getItem('wc_story_index');
-        if (raw !== null) return Number(raw);
-      } catch (err) {
-        console.warn('Could not read story index from localStorage.', err);
-      }
-      try {
-        if (window.__wc_story_index) return Number(JSON.parse(window.__wc_story_index));
-      } catch (err) {
-        console.warn('Could not read story index fallback.', err);
-      }
-      return 0;
-    })();
-    let selected = null;
-    let showOnlyUnlabeled = false;
-    let activeMenuKey = null;
-    let db = null;
-    let currentUser = null;
-    let saveTimer = null;
-
-    const storyEl = document.getElementById('story');
-    const storySelect = document.getElementById('storySelect');
-    const selectedBox = document.getElementById('selectedBox');
-    const existingCategory = document.getElementById('existingCategory');
-    const categoryTags = document.getElementById('categoryTags');
-    const categoryList = document.getElementById('categoryList');
-    const editCategorySelect = document.getElementById('editCategorySelect');
-    const editCategoryName = document.getElementById('editCategoryName');
-    const editCategoryDesc = document.getElementById('editCategoryDesc');
-    const storageWarning = document.getElementById('storageWarning');
-    const saveStatus = document.getElementById('saveStatus');
-    const mainLayout = document.getElementById('mainLayout');
-    const signedOutControls = document.getElementById('signedOutControls');
-    const signedInControls = document.getElementById('signedInControls');
-    const signedInEmail = document.getElementById('signedInEmail');
-    const authMessage = document.getElementById('authMessage');
-    const authEmail = document.getElementById('authEmail');
-    const authPassword = document.getElementById('authPassword');
-
-    function uid() {
-      return Math.random().toString(36).slice(2, 10);
-    }
-
-    function load(key, fallback) {
-      try {
-        const raw = localStorage.getItem(key);
-        if (raw) return JSON.parse(raw);
-      } catch (err) {
-        console.warn('Could not read from localStorage.', err);
-      }
-
-      try {
-        const fallbackKey = `__${key}`;
-        const rawFallback = window[fallbackKey];
-        if (rawFallback) return JSON.parse(rawFallback);
-      } catch (err) {
-        console.warn('Could not read from in-memory fallback.', err);
-      }
-
-      return fallback;
-    }
-
-    function showWarning(message) {
-      storageWarning.style.display = 'block';
-      storageWarning.textContent = message;
-    }
-
-    function showStatus(message) {
-      saveStatus.style.display = 'block';
-      saveStatus.textContent = message;
-      clearTimeout(showStatus._timer);
-      showStatus._timer = setTimeout(() => {
-        saveStatus.style.display = 'none';
-      }, 1800);
-    }
-
-    function openDatabase() {
-      return new Promise((resolve, reject) => {
-        if (!window.indexedDB) {
-          reject(new Error('IndexedDB is not available in this browser.'));
-          return;
-        }
-        const request = indexedDB.open('wordCategoryPracticeDB', 1);
-        request.onupgradeneeded = () => {
-          const database = request.result;
-          if (!database.objectStoreNames.contains('appState')) {
-            database.createObjectStore('appState');
-          }
-        };
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error || new Error('Could not open IndexedDB.'));
-      });
-    }
-
-    function idbSet(key, value) {
-      return new Promise((resolve, reject) => {
-        if (!db) {
-          reject(new Error('Database not ready.'));
-          return;
-        }
-        const tx = db.transaction('appState', 'readwrite');
-        tx.objectStore('appState').put(value, key);
-        tx.oncomplete = () => resolve();
-        tx.onerror = () => reject(tx.error || new Error('IndexedDB write failed.'));
-      });
-    }
-
-    function idbGet(key) {
-      return new Promise((resolve, reject) => {
-        if (!db) {
-          resolve(undefined);
-          return;
-        }
-        const tx = db.transaction('appState', 'readonly');
-        const request = tx.objectStore('appState').get(key);
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error || new Error('IndexedDB read failed.'));
-      });
-    }
-
-    function scheduleSave() {
-      clearTimeout(saveTimer);
-      saveTimer = setTimeout(saveToSupabase, 250);
-    }
-
-    async function save() {
-      scheduleSave();
-    }
-
-    async function saveToSupabase() {
-      if (!currentUser) return;
-      const payload = {
-        user_id: currentUser.id,
-        categories,
-        labels,
-        story_index: storyIndex,
-        updated_at: new Date().toISOString()
-      };
-      const { error } = await supabaseClient
-        .from('word_category_state')
-        .upsert(payload, { onConflict: 'user_id' });
-      if (error) {
-        console.error(error);
-        showWarning(`Could not save to Supabase: ${error.message}`);
-        return;
-      }
-      storageWarning.style.display = 'none';
-      showStatus('Saved to Supabase.');
-    }
-
-    async function loadFromSupabase() {
-      if (!currentUser) return;
-      const { data, error } = await supabaseClient
-        .from('word_category_state')
-        .select('categories, labels, story_index')
-        .eq('user_id', currentUser.id)
-        .maybeSingle();
-      if (error) {
-        showWarning(`Could not load from Supabase: ${error.message}`);
-        return;
-      }
-      if (data) {
-        if (Array.isArray(data.categories)) categories = data.categories;
-        if (data.labels && typeof data.labels === 'object') labels = data.labels;
-        if (typeof data.story_index === 'number') storyIndex = data.story_index;
-      } else {
-        await saveToSupabase();
-      }
-    }
-
-    function setAuthMessage(message, isError = false) {
-      authMessage.textContent = message;
-      authMessage.style.color = isError ? '#b91c1c' : 'var(--muted)';
-    }
-
-    async function refreshAppForSession(session) {
-      currentUser = session?.user || null;
-      if (!currentUser) {
-        signedOutControls.style.display = 'block';
-        signedInControls.style.display = 'none';
-        mainLayout.style.display = 'none';
-        return;
-      }
-      signedOutControls.style.display = 'none';
-      signedInControls.style.display = 'block';
-      signedInEmail.textContent = currentUser.email || 'account';
-      mainLayout.style.display = 'grid';
-      await loadFromSupabase();
-      populateStorySelect();
-      renderCategories();
-      renderStory();
-    }
-
-    async function signIn() {
-      setAuthMessage('Signing in…');
-      const { error } = await supabaseClient.auth.signInWithPassword({
-        email: authEmail.value.trim(),
-        password: authPassword.value
-      });
-      if (error) return setAuthMessage(error.message, true);
-      setAuthMessage('Signed in.');
-    }
-
-    async function signUp() {
-      setAuthMessage('Creating account…');
-      const { data, error } = await supabaseClient.auth.signUp({
-        email: authEmail.value.trim(),
-        password: authPassword.value
-      });
-      if (error) return setAuthMessage(error.message, true);
-      if (!data.session) setAuthMessage('Account created. Check your email to confirm, then sign in.');
-      else setAuthMessage('Account created and signed in.');
-    }
-
-    async function signOut() {
-      const { error } = await supabaseClient.auth.signOut();
-      if (error) setAuthMessage(error.message, true);
-    }
-
-    function tokenize(sentence) {
-      return sentence.match(/[A-Za-z']+|[^\sA-Za-z']/g) || [];
-    }
-
-    function keyFor(sentenceIdx, wordIdx) {
-      return `s${storyIndex}_sent${sentenceIdx}_word${wordIdx}`;
-    }
-
-    function currentStory() {
-      return stories[storyIndex];
-    }
-
-    function populateStorySelect() {
-      storySelect.innerHTML = '';
-      stories.forEach((story, index) => {
-        const option = document.createElement('option');
-        option.value = index;
-        option.textContent = story.title;
-        if (index === storyIndex) option.selected = true;
-        storySelect.appendChild(option);
-      });
-    }
-
-    function renderStory() {
-      storyEl.innerHTML = '';
-      currentStory().sentences.forEach((sentence, sentenceIdx) => {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'sentence';
-
-        const num = document.createElement('div');
-        num.className = 'sentence-number';
-        num.textContent = `Sentence ${sentenceIdx + 1}`;
-        wrapper.appendChild(num);
-
-        tokenize(sentence).forEach((token, wordIdx) => {
-          const isWord = /[A-Za-z']+/.test(token);
-          const labelId = labels[keyFor(sentenceIdx, wordIdx)];
-          if (showOnlyUnlabeled && labelId && isWord) {
-            return;
-          }
-
-          const span = document.createElement('span');
-          span.textContent = token;
-          span.className = isWord ? 'word' : '';
-
-          if (isWord) {
-            const wordKey = keyFor(sentenceIdx, wordIdx);
-            span.tabIndex = 0;
-            span.addEventListener('click', (e) => {
-              selectWord(sentenceIdx, wordIdx, token);
-              activeMenuKey = activeMenuKey === wordKey ? null : wordKey;
-              renderStory();
-              e.stopPropagation();
-            });
-            if (selected && selected.sentenceIdx === sentenceIdx && selected.wordIdx === wordIdx) {
-              span.classList.add('selected');
-            }
-            if (activeMenuKey === wordKey) {
-              span.classList.add('open');
-            }
-            if (labelId) {
-              const cat = categories.find(c => c.id === labelId);
-              if (cat) {
-                span.classList.add('labeled');
-                span.style.borderColor = cat.color;
-                span.style.background = cat.color;
-              }
-            }
-
-            const menu = document.createElement('div');
-            menu.className = 'word-menu';
-            menu.addEventListener('click', (e) => e.stopPropagation());
-
-            const title = document.createElement('div');
-            title.className = 'menu-title';
-            title.textContent = 'Choose a category';
-            menu.appendChild(title);
-
-            categories.forEach(cat => {
-              const btn = document.createElement('button');
-              btn.className = 'menu-option';
-              btn.innerHTML = `<span class="dot" style="background:${cat.color}"></span> ${cat.name}`;
-              btn.addEventListener('click', () => {
-                labels[wordKey] = cat.id;
-                save();
-                selectWord(sentenceIdx, wordIdx, token);
-                renderCategories();
-                activeMenuKey = null;
-                renderStory();
-              });
-              menu.appendChild(btn);
-            });
-
-            const clearBtn = document.createElement('button');
-            clearBtn.className = 'menu-option clear-option';
-            clearBtn.textContent = 'Clear label';
-            clearBtn.addEventListener('click', () => {
-              delete labels[wordKey];
-              save();
-              selectWord(sentenceIdx, wordIdx, token);
-              renderCategories();
-              activeMenuKey = null;
-              renderStory();
-            });
-            menu.appendChild(clearBtn);
-
-            span.appendChild(menu);
-          }
-          wrapper.appendChild(span);
-        });
-
-        storyEl.appendChild(wrapper);
-      });
-    }
-
-    function selectWord(sentenceIdx, wordIdx, token) {
-      selected = { sentenceIdx, wordIdx, token };
-      const currentLabel = labels[keyFor(sentenceIdx, wordIdx)];
-      const cat = categories.find(c => c.id === currentLabel);
-      selectedBox.innerHTML = `
-        <strong style="font-size:1.1rem;">${token}</strong><br>
-        <span class="small">Sentence ${sentenceIdx + 1}</span><br>
-        <span class="small">Current label: ${cat ? cat.name : 'none'}</span>
-      `;
-      existingCategory.value = currentLabel || '';
-      renderStory();
-    }
-
-    function renderCategories() {
-      existingCategory.innerHTML = '<option value="">Choose a category</option>';
-      editCategorySelect.innerHTML = '<option value="">Choose a category</option>';
-      categoryTags.innerHTML = '';
-      categoryList.innerHTML = '';
-
-      categories.forEach(cat => {
-        const opt = document.createElement('option');
-        opt.value = cat.id;
-        opt.textContent = cat.name;
-        existingCategory.appendChild(opt);
-
-        const editOpt = document.createElement('option');
-        editOpt.value = cat.id;
-        editOpt.textContent = cat.name;
-        editCategorySelect.appendChild(editOpt);
-
-        const tag = document.createElement('span');
-        tag.className = 'tag';
-        tag.innerHTML = `<span class="dot" style="background:${cat.color}"></span>${cat.name}`;
-        categoryTags.appendChild(tag);
-
-        const count = Object.values(labels).filter(id => id === cat.id).length;
-        const entry = document.createElement('div');
-        entry.className = 'entry';
-        entry.innerHTML = `
-          <strong>${cat.name}</strong>
-          <div class="small" style="margin-bottom:6px;">${cat.desc || 'No description yet.'}</div>
-          <div class="small">Used ${count} time${count === 1 ? '' : 's'}</div>
-        `;
-        categoryList.appendChild(entry);
-      });
-    }
-
-    function loadCategoryIntoEditor() {
-      const cat = categories.find(c => c.id === editCategorySelect.value);
-      editCategoryName.value = cat ? cat.name : '';
-      editCategoryDesc.value = cat ? (cat.desc || '') : '';
-    }
-
-    function saveCategoryEdit() {
-      const cat = categories.find(c => c.id === editCategorySelect.value);
-      if (!cat) return alert('Choose a category to edit.');
-      const newName = editCategoryName.value.trim();
-      const newDesc = editCategoryDesc.value.trim();
-      if (!newName) return alert('Category name cannot be empty.');
-      cat.name = newName;
-      cat.desc = newDesc;
-      save();
-      renderCategories();
-      editCategorySelect.value = cat.id;
-      loadCategoryIntoEditor();
-      if (selected) {
-        selectWord(selected.sentenceIdx, selected.wordIdx, selected.token);
-      }
-    }
-
-    function deleteCategory() {
-      const catId = editCategorySelect.value;
-      if (!catId) return alert('Choose a category to delete.');
-      const cat = categories.find(c => c.id === catId);
-      const usedCount = Object.values(labels).filter(id => id === catId).length;
-      const confirmed = confirm(`Delete category "${cat ? cat.name : 'this category'}"? This will clear ${usedCount} label${usedCount === 1 ? '' : 's'} using it.`);
-      if (!confirmed) return;
-
-      categories = categories.filter(c => c.id !== catId);
-      Object.keys(labels).forEach(key => {
-        if (labels[key] === catId) delete labels[key];
-      });
-      save();
-      renderCategories();
-      editCategorySelect.value = '';
-      loadCategoryIntoEditor();
-      if (selected) {
-        selectWord(selected.sentenceIdx, selected.wordIdx, selected.token);
-      }
-      renderStory();
-    }
-
-    function assignSelected() {
-      if (!selected) return alert('Tap a word first.');
-      if (!existingCategory.value) return alert('Choose a category first.');
-      labels[keyFor(selected.sentenceIdx, selected.wordIdx)] = existingCategory.value;
-      save();
-      selectWord(selected.sentenceIdx, selected.wordIdx, selected.token);
-      renderCategories();
-    }
-
-    function clearSelected() {
-      if (!selected) return alert('Tap a word first.');
-      delete labels[keyFor(selected.sentenceIdx, selected.wordIdx)];
-      save();
-      selectWord(selected.sentenceIdx, selected.wordIdx, selected.token);
-      renderCategories();
-    }
-
-    function createCategory() {
-      const name = document.getElementById('newCategoryName').value.trim();
-      const desc = document.getElementById('newCategoryDesc').value.trim();
-      if (!name) return alert('Give the category a name.');
-      const palette = ['#fca5a5','#fdba74','#fcd34d','#86efac','#93c5fd','#c4b5fd','#f9a8d4','#67e8f9'];
-      const cat = { id: uid(), name, desc, color: palette[categories.length % palette.length] };
-      categories.push(cat);
-      save();
-      renderCategories();
-      document.getElementById('newCategoryName').value = '';
-      document.getElementById('newCategoryDesc').value = '';
-      existingCategory.value = cat.id;
-    }
-
-    function resetCurrentStory() {
-      const keys = Object.keys(labels).filter(k => k.startsWith(`s${storyIndex}_`));
-      keys.forEach(k => delete labels[k]);
-      save();
-      selected = null;
-      selectedBox.textContent = 'Tap a word to begin.';
-      renderStory();
-      renderCategories();
-    }
-
-    function exportLabels() {
-      const data = {
-        story: currentStory().title,
-        categories,
-        labels
-      };
-      const text = JSON.stringify(data, null, 2);
-      try {
-        const blob = new Blob([text], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'word-category-labels.json';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
-      } catch (err) {
-        alert('Export could not start automatically in this browser/file mode. Copy the text from the next prompt and save it as a .json file.');
-        prompt('Copy your export data:', text);
-      }
-    }
-
-    storySelect.addEventListener('change', (e) => {
-      storyIndex = Number(e.target.value);
-      selected = null;
-      selectedBox.textContent = 'Tap a word to begin.';
-      save();
-      renderStory();
-    });
-
-    document.getElementById('assignBtn').addEventListener('click', assignSelected);
-    document.getElementById('clearWordBtn').addEventListener('click', clearSelected);
-    document.getElementById('createCategoryBtn').addEventListener('click', createCategory);
-    document.getElementById('resetStoryBtn').addEventListener('click', resetCurrentStory);
-    document.getElementById('exportBtn').addEventListener('click', exportLabels);
-    document.getElementById('showUnlabeledBtn').addEventListener('click', () => {
-      showOnlyUnlabeled = true;
-      renderStory();
-    });
-    document.getElementById('showAllBtn').addEventListener('click', () => {
-      showOnlyUnlabeled = false;
-      renderStory();
-    });
-    document.addEventListener('click', () => {
-      activeMenuKey = null;
-      renderStory();
-    });
-    editCategorySelect.addEventListener('change', loadCategoryIntoEditor);
-    document.getElementById('saveCategoryEditBtn').addEventListener('click', saveCategoryEdit);
-    document.getElementById('deleteCategoryBtn').addEventListener('click', deleteCategory);
-
-    document.getElementById('signInBtn').addEventListener('click', signIn);
-    document.getElementById('signUpBtn').addEventListener('click', signUp);
-    document.getElementById('signOutBtn').addEventListener('click', signOut);
-
-    supabaseClient.auth.onAuthStateChange((_event, session) => {
-      refreshAppForSession(session);
-    });
-
-    async function init() {
-      if (SUPABASE_URL.includes('PASTE_') || SUPABASE_PUBLISHABLE_KEY.includes('PASTE_')) {
-        showWarning('Add your Supabase URL and publishable key near the top of the script before deploying.');
-      }
-      const { data } = await supabaseClient.auth.getSession();
-      await refreshAppForSession(data.session);
-    }
-
-    init();
-  </script>
+<div class="app">
+  <header class="card">
+    <div class="title-line"><div><h1>Word Characterization Studio</h1><div class="sub">Paste, type, photograph, upload, or speak text; then organize words into repeatable nested categories.</div></div><div id="syncLabel" class="small">Not signed in</div></div>
+    <div class="tabs" id="mainTabs"><button class="tab active" data-page="characterizePage">Characterizing</button><button class="tab" data-page="categoriesPage">Categories</button><button class="tab" data-page="studyingPage">Studying</button><button class="tab" data-page="mindMapsPage">Mind Maps</button></div>
+    <div id="notice" class="notice"></div>
+  </header>
+
+  <section class="card auth" id="authPanel">
+    <div id="signedOut" class="row"><input id="email" type="email" placeholder="Email"><input id="password" type="password" placeholder="Password"><button id="signIn" class="primary">Sign in</button><button id="signUp">Create account</button></div>
+    <div id="signedIn" class="row" style="display:none"><div>Signed in as <strong id="userEmail"></strong></div><button id="signOut">Sign out</button></div>
+    <div id="authStatus" class="status"></div>
+  </section>
+
+  <main id="appMain" style="display:none">
+    <section id="characterizePage" class="page active"></section>
+    <section id="categoriesPage" class="page"></section>
+    <section id="studyingPage" class="page"></section>
+    <section id="mindMapsPage" class="page"></section>
+  </main>
+</div>
+
+<div id="categoryModal" class="modal"><div class="card modal-card"><h3 id="catModalTitle">New category</h3><input id="catName" placeholder="Category name"><textarea id="catDesc" placeholder="Description (optional)" style="min-height:75px;margin-top:8px"></textarea><input id="catColor" type="color" value="#93c5fd" style="margin-top:8px;height:44px"><div class="modal-actions"><button id="catCancel">Cancel</button><button id="catSave" class="primary">Save</button></div></div></div>
+<div id="classModal" class="modal"><div class="card modal-card"><h3>New study class</h3><input id="className" placeholder="Example: Organic Chemistry"><div class="modal-actions"><button id="classCancel">Cancel</button><button id="classSave" class="primary">Create class</button></div></div></div>
+<div id="mapModal" class="modal"><div class="card modal-card"><h3>New mind map</h3><input id="mapName" placeholder="Mind map name"><div class="modal-actions"><button id="mapCancel">Cancel</button><button id="mapSave" class="primary">Create</button></div></div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script>
+const SUPABASE_URL="https://hopaazyvwuafjiyysiyh.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY="PASTE_YOUR_SUPABASE_PUBLISHABLE_KEY_HERE";
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+const $=id=>document.getElementById(id), uid=()=>crypto.randomUUID?crypto.randomUUID():Math.random().toString(36).slice(2)+Date.now();
+const palette=['#93c5fd','#86efac','#fca5a5','#fcd34d','#c4b5fd','#67e8f9','#fdba74','#f9a8d4'];
+let currentUser=null, saveTimer=null, selected=null, currentPage='characterizePage', activeClassId=null, modalContext=null, recognition=null, activeMapId=null;
+
+function newWorkspace(name='Characterizing'){return{id:uid(),name,documents:[],activeDocumentId:null,categories:[{id:uid(),name:'Noun',desc:'A person, place, thing, or idea.',color:'#93c5fd',parentId:null,collapsed:false}],labels:{},dictionary:{},mindMaps:[],activeMapId:null,mapLevelVisibility:{}}}
+function defaultState(){return{version:3,main:newWorkspace('Characterizing'),classes:[],activeClassId:null}}
+let state=defaultState();
+
+function migrate(categories,labels){
+  const s=defaultState();
+  if(Array.isArray(categories)&&categories.length)s.main.categories=categories.map(c=>({...c,parentId:c.parentId||null,collapsed:false}));
+  const legacy={}; Object.entries(labels||{}).forEach(([k,v])=>{if(k!=='__app')legacy[k]=v});
+  if(labels&&labels.__app){const x=labels.__app;normalizeState(x);return x;}
+  if(Object.keys(legacy).length)s.main.legacyLabels=legacy;
+  normalizeState(s);return s;
+}
+function normalizeWorkspace(ws){if(!ws)return;ws.mindMaps=Array.isArray(ws.mindMaps)?ws.mindMaps:[];ws.activeMapId=ws.activeMapId||ws.mindMaps[0]?.id||null;ws.mapLevelVisibility=ws.mapLevelVisibility||{};ws.mindMaps.forEach(m=>{m.branches=Array.isArray(m.branches)?m.branches:[];m.levelVisibility=m.levelVisibility||{1:true,2:true,3:true};m.collapsedBranches=m.collapsedBranches||{}})}
+function normalizeState(st){normalizeWorkspace(st.main);(st.classes||[]).forEach(normalizeWorkspace)}
+function packedLabels(){return{__app:state}}
+function workspace(){if(currentPage==='studyingPage'){return state.classes.find(c=>c.id===activeClassId)||null}return state.main}
+function wordsOnly(text){return(text.match(/[\p{L}\p{N}]+(?:['’-][\p{L}\p{N}]+)*/gu)||[])}
+function tokenize(text){return text.match(/[\p{L}\p{N}]+(?:['’-][\p{L}\p{N}]+)*|[^\s\p{L}\p{N}]+/gu)||[]}
+function splitSentences(text){const clean=text.replace(/\s+/g,' ').trim();if(!clean)return[];try{return Array.from(new Intl.Segmenter('en',{granularity:'sentence'}).segment(clean),x=>x.segment.trim()).filter(Boolean)}catch{return clean.match(/[^.!?]+(?:[.!?]+|$)/g)?.map(x=>x.trim()).filter(Boolean)||[clean]}}
+function norm(w){return w.toLocaleLowerCase()}
+function showNotice(msg,bad=false){const n=$('notice');n.textContent=msg;n.className='notice'+(bad?' warning':'');n.style.display='block';clearTimeout(showNotice.t);showNotice.t=setTimeout(()=>n.style.display='none',3000)}
+
+async function loadState(){
+ const {data,error}=await sb.from('word_category_state').select('categories,labels,story_index').eq('user_id',currentUser.id).maybeSingle();
+ if(error){showNotice('Could not load: '+error.message,true);return}
+ state=data?migrate(data.categories,data.labels):defaultState(); normalizeState(state); activeClassId=state.activeClassId||state.classes[0]?.id||null; activeMapId=(state.classes.find(c=>c.id===activeClassId)||state.main)?.activeMapId||null; renderAll(); if(!data)saveNow();
+}
+function scheduleSave(){clearTimeout(saveTimer);$('syncLabel').textContent='Saving...';saveTimer=setTimeout(saveNow,350)}
+async function saveNow(){if(!currentUser)return;state.activeClassId=activeClassId;const payload={user_id:currentUser.id,categories:state.main.categories,labels:packedLabels(),story_index:0,updated_at:new Date().toISOString()};const {error}=await sb.from('word_category_state').upsert(payload,{onConflict:'user_id'});$('syncLabel').textContent=error?'Save failed':'Saved';if(error)showNotice(error.message,true)}
+
+function activeDoc(ws){return ws?.documents.find(d=>d.id===ws.activeDocumentId)||null}
+function labelKey(docId,sentIdx,tokIdx){return`${docId}|${sentIdx}|${tokIdx}`}
+function categoryById(ws,id){return ws.categories.find(c=>c.id===id)}
+function categoryPath(ws,id){const parts=[];let c=categoryById(ws,id),guard=0;while(c&&guard++<20){parts.unshift(c.name);c=categoryById(ws,c.parentId)}return parts.join(' › ')}
+function addDocument(ws,text,title){const sentences=splitSentences(text);if(!sentences.length)return showNotice('No text was found.',true);const d={id:uid(),title:title||`Text ${ws.documents.length+1}`,originalText:text,sentences,createdAt:new Date().toISOString()};ws.documents.unshift(d);ws.activeDocumentId=d.id;selected=null;scheduleSave();renderAll();showNotice(`${sentences.length} sentence${sentences.length===1?'':'s'} added.`)}
+
+function renderWorkspace(container,ws,prefix){
+ if(!ws){container.innerHTML='<div class="card panel empty">Create or choose a study class.</div>';return}
+ container.innerHTML=`<div class="grid"><div><div class="card panel intake"><h2>Add Text</h2><div class="input-tabs"><button class="input-tab active" data-mode="paste">Type / Paste</button><button class="input-tab" data-mode="file">Upload file or photo</button><button class="input-tab" data-mode="speech">Speak</button></div>
+ <div class="input-pane active" data-pane="paste"><textarea id="${prefix}Text" placeholder="Type or paste a large amount of text here. It will be split into sentences automatically."></textarea><div class="toolbar"><input id="${prefix}Title" placeholder="Optional title" style="min-width:220px"><button class="primary" data-action="addText">Break into sentences</button></div></div>
+ <div class="input-pane" data-pane="file"><input id="${prefix}File" type="file" accept=".txt,.md,.csv,image/*"><div class="small" style="margin-top:7px">Text files are read directly. Photos are converted to text with OCR in your browser.</div><div class="toolbar"><button class="primary" data-action="processFile">Read upload</button></div></div>
+ <div class="input-pane" data-pane="speech"><textarea id="${prefix}Speech" placeholder="Your speech will appear here."></textarea><div class="toolbar"><button class="primary" data-action="startSpeech">Start speaking</button><button data-action="stopSpeech">Stop</button><button data-action="addSpeech">Add as text</button></div></div></div>
+ <div class="card panel"><div class="docbar"><select data-role="docSelect"></select><button data-action="renameDoc">Rename</button><button class="danger" data-action="deleteDoc">Delete</button></div><div class="toolbar"><button class="soft" data-action="applyDictionary">Apply remembered words</button><button data-action="showUnlabeled">Show unlabeled only</button><button data-action="showAll">Show all</button></div><div data-role="sentences"></div></div></div>
+ <aside class="card panel"><h2>Selected Word</h2><div data-role="selectedBox" class="selected-box small">Click a word to characterize it.</div><label class="small">Assign category or subcategory</label><select data-role="categorySelect"></select><div class="toolbar"><button class="primary" data-action="assign">Assign and remember</button><button data-action="clear">Clear</button></div><div class="small">“Assign and remember” teaches the app that this spelling should receive the same category later. Use “Apply remembered words” after adding new text.</div><h3>Categories</h3><button data-action="newRoot">+ New top-level category</button><div data-role="miniCategories" style="margin-top:9px"></div></aside></div>`;
+ bindWorkspace(container,ws,prefix);renderWorkspaceParts(container,ws);
+}
+function bindWorkspace(container,ws,prefix){
+ container.querySelectorAll('.input-tab').forEach(b=>b.onclick=()=>{container.querySelectorAll('.input-tab').forEach(x=>x.classList.toggle('active',x===b));container.querySelectorAll('.input-pane').forEach(x=>x.classList.toggle('active',x.dataset.pane===b.dataset.mode))});
+ container.querySelectorAll('[data-action]').forEach(b=>b.onclick=()=>handleAction(b.dataset.action,container,ws,prefix));
+ container.querySelector('[data-role="docSelect"]').onchange=e=>{ws.activeDocumentId=e.target.value;selected=null;scheduleSave();renderWorkspaceParts(container,ws)};
+}
+async function handleAction(a,c,ws,p){
+ if(a==='addText'){addDocument(ws,$(p+'Text').value,$(p+'Title').value.trim());$(p+'Text').value='';$(p+'Title').value=''}
+ if(a==='processFile'){const f=$(p+'File').files[0];if(!f)return showNotice('Choose a file or photo.',true);let text='';if(f.type.startsWith('image/')){showNotice('Reading text from photo...');try{const r=await Tesseract.recognize(f,'eng');text=r.data.text}catch(e){return showNotice('Photo text recognition failed: '+e.message,true)}}else{text=await f.text()}addDocument(ws,text,f.name)}
+ if(a==='startSpeech')startSpeech($(p+'Speech')); if(a==='stopSpeech'&&recognition)recognition.stop(); if(a==='addSpeech')addDocument(ws,$(p+'Speech').value,'Spoken text');
+ if(a==='applyDictionary')applyDictionary(ws); if(a==='showUnlabeled'){ws.showUnlabeled=true;renderWorkspaceParts(c,ws)} if(a==='showAll'){ws.showUnlabeled=false;renderWorkspaceParts(c,ws)}
+ if(a==='assign')assignSelected(ws,c); if(a==='clear')clearSelected(ws,c); if(a==='newRoot')openCategoryModal(ws,null,null); if(a==='renameDoc')renameDoc(ws,c); if(a==='deleteDoc')deleteDoc(ws,c);
+}
+function startSpeech(target){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return showNotice('Speech recognition is not supported in this browser. Chrome or Edge works best.',true);recognition=new SR();recognition.continuous=true;recognition.interimResults=true;let final=target.value;recognition.onresult=e=>{let interim='';for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal)final+=(final?' ':'')+t;else interim+=t}target.value=final+(interim?' '+interim:'')};recognition.onerror=e=>showNotice('Microphone error: '+e.error,true);recognition.start();showNotice('Listening...')}
+function renderWorkspaceParts(c,ws){
+ const ds=c.querySelector('[data-role="docSelect"]');ds.innerHTML=ws.documents.length?ws.documents.map(d=>`<option value="${d.id}" ${d.id===ws.activeDocumentId?'selected':''}>${esc(d.title)}</option>`).join(''):'<option value="">No texts yet</option>';
+ const cs=c.querySelector('[data-role="categorySelect"]');cs.innerHTML='<option value="">Choose a category</option>'+flattenCategories(ws).map(x=>`<option value="${x.cat.id}">${'— '.repeat(x.depth)}${esc(x.cat.name)}</option>`).join('');
+ const box=c.querySelector('[data-role="selectedBox"]');if(selected&&selected.wsId===ws.id){const cat=categoryById(ws,ws.labels[selected.key]);box.innerHTML=`<strong>${esc(selected.word)}</strong><br><span class="small">${cat?'Current: '+esc(categoryPath(ws,cat.id)):'Not characterized'}</span>`;cs.value=cat?.id||''}else box.textContent='Click a word to characterize it.';
+ renderSentences(c.querySelector('[data-role="sentences"]'),ws);renderMiniCategories(c.querySelector('[data-role="miniCategories"]'),ws);
+}
+function renderSentences(el,ws){const d=activeDoc(ws);if(!d){el.innerHTML='<div class="empty">Add text above to begin.</div>';return}el.innerHTML='';d.sentences.forEach((s,si)=>{const div=document.createElement('div');div.className='sentence';div.innerHTML=`<div class="sentence-num">Sentence ${si+1}</div>`;tokenize(s).forEach((t,ti)=>{const isWord=/[\p{L}\p{N}]/u.test(t);const span=document.createElement('span');span.textContent=t;if(!isWord){span.className='punct';div.appendChild(span);return}const key=labelKey(d.id,si,ti),cid=ws.labels[key],cat=categoryById(ws,cid);if(ws.showUnlabeled&&cid)return;span.className='word'+(cid?'':' unlabeled')+(selected?.key===key&&selected.wsId===ws.id?' selected':'');if(cat){span.style.background=cat.color;span.style.borderColor=cat.color;span.title=categoryPath(ws,cat.id)}span.onclick=()=>{selected={wsId:ws.id,key,word:t};renderAll()};div.appendChild(span)});el.appendChild(div)})}
+function flattenCategories(ws,parentId=null,depth=0,out=[]){ws.categories.filter(c=>(c.parentId||null)===parentId).forEach(cat=>{out.push({cat,depth});flattenCategories(ws,cat.id,depth+1,out)});return out}
+function renderMiniCategories(el,ws){el.innerHTML=flattenCategories(ws).map(x=>`<div style="margin-left:${x.depth*15}px;padding:5px 0"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${x.cat.color};margin-right:6px"></span>${esc(x.cat.name)}</div>`).join('')||'<div class="small">No categories yet.</div>'}
+function assignSelected(ws,c){if(!selected||selected.wsId!==ws.id)return showNotice('Select a word first.',true);const cid=c.querySelector('[data-role="categorySelect"]').value;if(!cid)return showNotice('Choose a category.',true);ws.labels[selected.key]=cid;ws.dictionary[norm(selected.word)]=cid;scheduleSave();renderAll()}
+function clearSelected(ws,c){if(!selected||selected.wsId!==ws.id)return;delete ws.labels[selected.key];scheduleSave();renderAll()}
+function applyDictionary(ws){let n=0;ws.documents.forEach(d=>d.sentences.forEach((s,si)=>tokenize(s).forEach((t,ti)=>{if(!/[\p{L}\p{N}]/u.test(t))return;const key=labelKey(d.id,si,ti),cid=ws.dictionary[norm(t)];if(cid&&categoryById(ws,cid)&&!ws.labels[key]){ws.labels[key]=cid;n++}})));scheduleSave();renderAll();showNotice(`${n} word occurrence${n===1?'':'s'} characterized from memory.`)}
+function renameDoc(ws,c){const d=activeDoc(ws);if(!d)return;const v=prompt('Document title:',d.title);if(v?.trim()){d.title=v.trim();scheduleSave();renderAll()}}
+function deleteDoc(ws,c){const d=activeDoc(ws);if(!d||!confirm(`Delete “${d.title}”?`))return;ws.documents=ws.documents.filter(x=>x.id!==d.id);Object.keys(ws.labels).forEach(k=>{if(k.startsWith(d.id+'|'))delete ws.labels[k]});ws.activeDocumentId=ws.documents[0]?.id||null;selected=null;scheduleSave();renderAll()}
+
+function renderCategoryPage(){const ws=state.main, el=$('categoriesPage');el.innerHTML=`<div class="card panel"><div class="title-line"><div><h2>Category Library</h2><div class="small">Drag words into another category or subcategory. Every heading can collapse.</div></div><button id="newTopCategory" class="primary">+ New category</button></div><div id="fullTree" class="category-tree" style="margin-top:12px"></div></div>`;$('newTopCategory').onclick=()=>openCategoryModal(ws,null,null);renderTree($('fullTree'),ws,null)}
+function renderTree(el,ws,parentId){el.innerHTML='';ws.categories.filter(c=>(c.parentId||null)===parentId).forEach(cat=>{const node=document.createElement('div');node.className='cat'+(cat.collapsed?' collapsed':'');node.dataset.catId=cat.id;const unique=uniqueWordsForCategory(ws,cat.id);node.innerHTML=`<div class="cat-head"><button class="cat-toggle">${cat.collapsed?'▸':'▾'}</button><span style="width:13px;height:13px;border-radius:50%;background:${cat.color}"></span><div class="cat-name">${esc(cat.name)}</div><div class="cat-count">${unique.length} word${unique.length===1?'':'s'}</div><div class="cat-actions"><button data-add>+ Subcategory</button><button data-edit>Edit</button><button data-del class="danger">Delete</button></div></div><div class="cat-body"><div class="small" style="margin-bottom:6px">${esc(cat.desc||'No description')}</div><div class="word-bank"></div><div class="subtree"></div></div>`;
+ const bank=node.querySelector('.word-bank');unique.forEach(w=>{const chip=document.createElement('span');chip.className='bank-word';chip.textContent=w;chip.draggable=true;chip.onclick=()=>characterizeDictionaryWord(ws,w);chip.ondragstart=e=>e.dataTransfer.setData('text/plain',JSON.stringify({word:w,from:cat.id}));bank.appendChild(chip)});bank.ondragover=e=>{e.preventDefault();bank.classList.add('drop-target')};bank.ondragleave=()=>bank.classList.remove('drop-target');bank.ondrop=e=>{e.preventDefault();bank.classList.remove('drop-target');try{const x=JSON.parse(e.dataTransfer.getData('text/plain'));moveDictionaryWord(ws,x.word,cat.id)}catch{}};
+ node.querySelector('.cat-toggle').onclick=()=>{cat.collapsed=!cat.collapsed;scheduleSave();renderAll()};node.querySelector('[data-add]').onclick=()=>openCategoryModal(ws,cat.id,null);node.querySelector('[data-edit]').onclick=()=>openCategoryModal(ws,cat.parentId,cat);node.querySelector('[data-del]').onclick=()=>deleteCategory(ws,cat.id);renderTree(node.querySelector('.subtree'),ws,cat.id);el.appendChild(node)})}
+function uniqueWordsForCategory(ws,cid){return Object.entries(ws.dictionary).filter(([,v])=>v===cid).map(([w])=>w).sort()}
+function moveDictionaryWord(ws,word,cid){ws.dictionary[norm(word)]=cid;Object.keys(ws.labels).forEach(k=>{const d=ws.documents.find(d=>k.startsWith(d.id+'|'));if(!d)return;const [,si,ti]=k.split('|');const token=tokenize(d.sentences[+si])[+ti];if(token&&norm(token)===norm(word))ws.labels[k]=cid});scheduleSave();renderAll()}
+function characterizeDictionaryWord(ws,word){const options=flattenCategories(ws).map(x=>`${x.cat.id}::${'—'.repeat(x.depth)}${x.cat.name}`).join('\n');const name=prompt(`Type the exact category name for “${word}”:\n\n${flattenCategories(ws).map(x=>'  '.repeat(x.depth)+x.cat.name).join('\n')}`);if(!name)return;const cat=ws.categories.find(c=>c.name.toLowerCase()===name.trim().toLowerCase());if(!cat)return showNotice('Category name not found.',true);moveDictionaryWord(ws,word,cat.id)}
+function openCategoryModal(ws,parentId,cat){modalContext={ws,parentId,cat};$('catModalTitle').textContent=cat?'Edit category':parentId?'New subcategory':'New category';$('catName').value=cat?.name||'';$('catDesc').value=cat?.desc||'';$('catColor').value=cat?.color||palette[ws.categories.length%palette.length];$('categoryModal').classList.add('open')}
+function deleteCategory(ws,id){const cat=categoryById(ws,id);if(!cat||!confirm(`Delete “${cat.name}” and its subcategories? Words in them will become uncharacterized.`))return;const ids=new Set([id]);let changed=true;while(changed){changed=false;ws.categories.forEach(c=>{if(c.parentId&&ids.has(c.parentId)&&!ids.has(c.id)){ids.add(c.id);changed=true}})}ws.categories=ws.categories.filter(c=>!ids.has(c.id));Object.keys(ws.labels).forEach(k=>{if(ids.has(ws.labels[k]))delete ws.labels[k]});Object.keys(ws.dictionary).forEach(k=>{if(ids.has(ws.dictionary[k]))delete ws.dictionary[k]});scheduleSave();renderAll()}
+
+function renderStudying(){const el=$('studyingPage');if(!activeClassId&&state.classes[0])activeClassId=state.classes[0].id;el.innerHTML=`<div class="class-layout"><aside class="card class-sidebar"><div class="title-line"><h2 style="margin:0;font-size:1.05rem">Classes</h2><button id="addClass">+</button></div><div id="classList" style="margin-top:10px"></div></aside><div id="classWorkspace" class="class-main"></div></div>`;$('addClass').onclick=()=>{$('className').value='';$('classModal').classList.add('open')};const list=$('classList');state.classes.forEach(cl=>{const d=document.createElement('div');d.className='class-item'+(cl.id===activeClassId?' active':'');d.innerHTML=`<strong>${esc(cl.name)}</strong><div class="small">${cl.documents.length} text${cl.documents.length===1?'':'s'}</div>`;d.onclick=()=>{activeClassId=cl.id;scheduleSave();renderAll()};list.appendChild(d)});if(!state.classes.length)list.innerHTML='<div class="small">Create a class such as Organic Chemistry.</div>';renderWorkspace($('classWorkspace'),workspace(),'study')}
+
+function categoryDepth(ws,cat){let d=1,c=cat,g=0;while(c?.parentId&&g++<20){d++;c=categoryById(ws,c.parentId)}return d}
+function renderCategoryMindMap(ws,el){const maxDepth=Math.max(1,...ws.categories.map(c=>categoryDepth(ws,c)));if(!Object.keys(ws.mapLevelVisibility).length)for(let i=1;i<=maxDepth;i++)ws.mapLevelVisibility[i]=true;el.innerHTML=`<div class="card panel"><div class="title-line"><div><h2>Category Mind Map</h2><div class="small">This map is generated from your categories, subcategories, and characterized words.</div></div></div><div class="mindmap-controls" id="catMapControls"></div><div class="mindmap-shell"><div class="mindmap" id="catMindMap"></div></div></div>`;const ctl=el.querySelector('#catMapControls');for(let i=1;i<=maxDepth+1;i++){const lab=document.createElement('label');lab.innerHTML=`<input type="checkbox" ${ws.mapLevelVisibility[i]!==false?'checked':''}> ${i<=maxDepth?'Category level '+i:'Words'}`;lab.querySelector('input').onchange=e=>{ws.mapLevelVisibility[i]=e.target.checked;scheduleSave();renderMindMapsPage()};ctl.appendChild(lab)}const map=el.querySelector('#catMindMap');const cols=[];for(let d=1;d<=maxDepth;d++){if(ws.mapLevelVisibility[d]===false)continue;const col=document.createElement('div');col.className='mind-col';ws.categories.filter(c=>categoryDepth(ws,c)===d).forEach(cat=>{const n=document.createElement('div');n.className='mind-node';n.style.borderColor=cat.color;n.innerHTML=`<strong>${esc(cat.name)}</strong><div class="small">${uniqueWordsForCategory(ws,cat.id).length} words</div>`;col.appendChild(n)});cols.push(col)}if(ws.mapLevelVisibility[maxDepth+1]!==false){const col=document.createElement('div');col.className='mind-col';Object.entries(ws.dictionary).sort().forEach(([w,cid])=>{const cat=categoryById(ws,cid);if(!cat)return;const n=document.createElement('div');n.className='mind-node';n.style.borderColor=cat.color;n.innerHTML=`<strong>${esc(w)}</strong><div class="small">${esc(categoryPath(ws,cid))}</div>`;col.appendChild(n)});cols.push(col)}cols.forEach(c=>map.appendChild(c));if(!map.children.length)map.innerHTML='<div class="empty">Turn on at least one level.</div>'}
+function renderMindMapsPage(){const el=$('mindMapsPage'),ws=activeClassId?state.classes.find(c=>c.id===activeClassId):state.main;el.innerHTML=`<div class="class-layout"><aside class="card class-sidebar"><div class="title-line"><h2 style="margin:0;font-size:1.05rem">Mind Maps</h2><button id="newMindMap">+</button></div><div class="small" style="margin:8px 0">${esc(ws?.name||'Characterizing')}</div><div id="mindMapList"></div></aside><div id="mindMapMain" class="class-main"></div></div>`;if(!ws){$('mindMapMain').innerHTML='<div class="card panel empty">Choose or create a class first.</div>';return}$('newMindMap').onclick=()=>{$('mapName').value='';$('mapModal').classList.add('open')};const list=$('mindMapList');ws.mindMaps.forEach(m=>{const d=document.createElement('div');d.className='map-list-item'+(m.id===ws.activeMapId?' active':'');d.innerHTML=`<strong>${esc(m.name)}</strong><div class="small">${m.branches.length} branches</div>`;d.onclick=()=>{ws.activeMapId=m.id;activeMapId=m.id;scheduleSave();renderMindMapsPage()};list.appendChild(d)});if(!ws.mindMaps.length)list.innerHTML='<div class="small">Create a standalone mind map for this class.</div>';const main=$('mindMapMain');const catWrap=document.createElement('div');renderCategoryMindMap(ws,catWrap);main.appendChild(catWrap);const map=ws.mindMaps.find(m=>m.id===ws.activeMapId);if(map){const area=document.createElement('div');area.className='card panel';area.style.marginTop='12px';area.innerHTML=`<div class="title-line"><div><h2>${esc(map.name)}</h2><div class="small">Standalone class mind map</div></div><div><button data-rename>Rename</button> <button data-delete class="danger">Delete</button></div></div><div class="mindmap-controls" data-levels></div><div class="toolbar"><button data-addbranch class="primary">+ Add branch</button></div><div data-editor></div><div class="mindmap-shell"><div class="mindmap" data-map></div></div>`;main.appendChild(area);renderStandaloneMap(ws,map,area)}}
+function renderStandaloneMap(ws,map,area){const levels=area.querySelector('[data-levels]');[1,2,3].forEach(i=>{const l=document.createElement('label');l.innerHTML=`<input type="checkbox" ${map.levelVisibility[i]!==false?'checked':''}> Level ${i}`;l.querySelector('input').onchange=e=>{map.levelVisibility[i]=e.target.checked;scheduleSave();renderMindMapsPage()};levels.appendChild(l)});area.querySelector('[data-addbranch]').onclick=()=>{map.branches.push({id:uid(),name:'New branch',children:[]});scheduleSave();renderMindMapsPage()};area.querySelector('[data-rename]').onclick=()=>{const v=prompt('Mind map name:',map.name);if(v?.trim()){map.name=v.trim();scheduleSave();renderMindMapsPage()}};area.querySelector('[data-delete]').onclick=()=>{if(confirm(`Delete “${map.name}”?`)){ws.mindMaps=ws.mindMaps.filter(x=>x.id!==map.id);ws.activeMapId=ws.mindMaps[0]?.id||null;scheduleSave();renderMindMapsPage()}};const ed=area.querySelector('[data-editor]');map.branches.forEach(br=>{const g=document.createElement('div');g.className='branch-group';g.innerHTML=`<div class="branch-head"><input value="${esc(br.name)}"><button data-collapse>${map.collapsedBranches[br.id]?'Expand':'Collapse'}</button><button data-del class="danger">Delete</button></div><div class="branch-children"></div><div class="toolbar"><button data-addchild>+ Add item</button></div>`;g.querySelector('input').onchange=e=>{br.name=e.target.value;scheduleSave();renderMindMapsPage()};g.querySelector('[data-collapse]').onclick=()=>{map.collapsedBranches[br.id]=!map.collapsedBranches[br.id];scheduleSave();renderMindMapsPage()};g.querySelector('[data-del]').onclick=()=>{map.branches=map.branches.filter(x=>x.id!==br.id);scheduleSave();renderMindMapsPage()};const kids=g.querySelector('.branch-children');if(map.collapsedBranches[br.id])kids.style.display='none';br.children.forEach(ch=>{const r=document.createElement('div');r.className='branch-child';r.innerHTML=`<input value="${esc(ch.name)}"><button class="danger">Delete</button>`;r.querySelector('input').onchange=e=>{ch.name=e.target.value;scheduleSave();renderMindMapsPage()};r.querySelector('button').onclick=()=>{br.children=br.children.filter(x=>x.id!==ch.id);scheduleSave();renderMindMapsPage()};kids.appendChild(r)});g.querySelector('[data-addchild]').onclick=()=>{br.children.push({id:uid(),name:'New item'});scheduleSave();renderMindMapsPage()};ed.appendChild(g)});const canvas=area.querySelector('[data-map]');if(map.levelVisibility[1]!==false){const c=document.createElement('div');c.className='mind-col';c.innerHTML=`<div class="mind-node"><strong>${esc(map.name)}</strong><div class="small">Mind map</div></div>`;canvas.appendChild(c)}if(map.levelVisibility[2]!==false){const c=document.createElement('div');c.className='mind-col';map.branches.forEach(br=>{const n=document.createElement('div');n.className='mind-node'+(map.collapsedBranches[br.id]?' hidden-branch':'');n.innerHTML=`<strong>${esc(br.name)}</strong><div class="small">${br.children.length} items</div>`;n.onclick=()=>{map.collapsedBranches[br.id]=!map.collapsedBranches[br.id];scheduleSave();renderMindMapsPage()};c.appendChild(n)});canvas.appendChild(c)}if(map.levelVisibility[3]!==false){const c=document.createElement('div');c.className='mind-col';map.branches.filter(br=>!map.collapsedBranches[br.id]).forEach(br=>br.children.forEach(ch=>{const n=document.createElement('div');n.className='mind-node';n.innerHTML=`<strong>${esc(ch.name)}</strong><div class="small">${esc(br.name)}</div>`;c.appendChild(n)}));canvas.appendChild(c)}if(!canvas.children.length)canvas.innerHTML='<div class="empty">Turn on at least one level.</div>'}
+
+function renderAll(){renderWorkspace($('characterizePage'),state.main,'main');renderCategoryPage();renderStudying();renderMindMapsPage()}
+function esc(s){return String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
+
+$('catCancel').onclick=()=>$('categoryModal').classList.remove('open');$('catSave').onclick=()=>{const {ws,parentId,cat}=modalContext||{};const name=$('catName').value.trim();if(!name)return showNotice('Enter a category name.',true);if(cat){cat.name=name;cat.desc=$('catDesc').value.trim();cat.color=$('catColor').value}else ws.categories.push({id:uid(),name,desc:$('catDesc').value.trim(),color:$('catColor').value,parentId:parentId||null,collapsed:false});$('categoryModal').classList.remove('open');scheduleSave();renderAll()};
+$('classCancel').onclick=()=>$('classModal').classList.remove('open');$('classSave').onclick=()=>{const name=$('className').value.trim();if(!name)return;const cl=newWorkspace(name);state.classes.push(cl);activeClassId=cl.id;$('classModal').classList.remove('open');scheduleSave();renderAll()};
+$('mapCancel').onclick=()=>$('mapModal').classList.remove('open');$('mapSave').onclick=()=>{const ws=activeClassId?state.classes.find(c=>c.id===activeClassId):state.main;const name=$('mapName').value.trim();if(!ws||!name)return;const m={id:uid(),name,branches:[],levelVisibility:{1:true,2:true,3:true},collapsedBranches:{}};ws.mindMaps.push(m);ws.activeMapId=m.id;activeMapId=m.id;$('mapModal').classList.remove('open');scheduleSave();renderAll()};
+$('mainTabs').onclick=e=>{const b=e.target.closest('[data-page]');if(!b)return;currentPage=b.dataset.page;document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.page').forEach(x=>x.classList.toggle('active',x.id===currentPage));selected=null;renderAll()};
+$('signIn').onclick=async()=>{const {error}=await sb.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});$('authStatus').textContent=error?error.message:'Signed in.'};
+$('signUp').onclick=async()=>{const {data,error}=await sb.auth.signUp({email:$('email').value.trim(),password:$('password').value});$('authStatus').textContent=error?error.message:(data.session?'Account created.':'Account created. Check your email to confirm it.')};
+$('signOut').onclick=()=>sb.auth.signOut();
+async function setSession(session){currentUser=session?.user||null;$('signedOut').style.display=currentUser?'none':'flex';$('signedIn').style.display=currentUser?'flex':'none';$('appMain').style.display=currentUser?'block':'none';$('userEmail').textContent=currentUser?.email||'';$('syncLabel').textContent=currentUser?'Loading...':'Not signed in';if(currentUser)await loadState()}
+sb.auth.onAuthStateChange((_e,s)=>setSession(s));
+(async()=>{if(SUPABASE_PUBLISHABLE_KEY.includes('PASTE_'))showNotice('Paste your Supabase publishable key into the file before deploying.',true);const {data}=await sb.auth.getSession();await setSession(data.session)})();
+</script>
 </body>
 </html>
